@@ -1,0 +1,100 @@
+/* Typography */
+.h1 {
+    @apply font-extrabold text-5xl;
+}
+
+.h2 {
+    @apply font-extrabold text-4xl;
+}
+
+.h3 {
+    @apply font-extrabold text-3xl;
+}
+
+.h4 {
+    @apply font-extrabold text-2xl;
+}
+
+@media (width >= 48rem) {
+    .h1 {
+        @apply text-6xl;
+    }
+
+    .h2 {
+        @apply text-5xl;
+    }
+
+    .h3 {
+        @apply text-4xl;
+    }
+}
+
+/* Buttons */
+.btn,
+.btn-sm {
+    @apply inline-flex justify-center items-center border border-transparent rounded-full font-medium text-sm whitespace-nowrap transition duration-150 ease-in-out;
+}
+
+.btn {
+    @apply px-4 py-1.5;
+}
+
+.btn-sm {
+    @apply px-3 py-1;
+}
+
+/* Forms */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+.form-input,
+.form-textarea,
+.form-multiselect,
+.form-select,
+.form-checkbox,
+.form-radio {
+    @apply bg-slate-800 border border-transparent focus:border-purple-500;
+}
+
+.form-input,
+.form-textarea,
+.form-multiselect,
+.form-select,
+.form-checkbox {
+    @apply rounded;
+}
+
+.form-input,
+.form-textarea,
+.form-multiselect,
+.form-select {
+    @apply px-3 py-1.5 text-slate-200 text-sm;
+}
+
+.form-input,
+.form-textarea {
+    @apply placeholder-slate-500;
+}
+
+.form-select {
+    @apply pr-10;
+}
+
+.form-checkbox,
+.form-radio {
+    @apply rounded-sm text-purple-600;
+}
+
+/* Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
