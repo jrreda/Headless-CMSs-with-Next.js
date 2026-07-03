@@ -50,8 +50,6 @@ async function getHeroData(): Promise<HeroFields | null> {
 
 export default async function Hero() {
   const fields = await getHeroData();
-  console.log(fields);
-  
   const cta = fields ? getResolvedCta(fields.callToActions) : null;
 
   return (
