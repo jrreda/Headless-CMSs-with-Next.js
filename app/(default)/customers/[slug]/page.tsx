@@ -9,7 +9,20 @@ import Illustration from '@/public/images/page-illustration.svg'
 import RelatedPosts from './related-posts'
 import { contentfulClient } from '@/lib/contentful'
 
-export const dynamic = 'force-dynamic'
+async function getAllSlugs() {
+  const response = await contentfulClient.getEntries({
+    content_type: 'customerPost',
+    select: 'fields.slug',
+  })
+  return response.items
+    .map((item) => item.fields?.slug)
+    .filter((slug): slug is string => typeof slug === 'string')
+}
+
+export async function generateStaticParams() {
+  const slugs = await getAllSlugs()
+  return slugs.map(slug => ({ slug }))
+}
 
 type ContentfulAsset = {
   fields?: {
