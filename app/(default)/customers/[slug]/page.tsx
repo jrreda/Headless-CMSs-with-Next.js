@@ -1,17 +1,96 @@
-export const metadata = {
-  title: 'Customer Post - Stellar',
-  description: 'Page description',
-}
-
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import type { Document } from '@contentful/rich-text-types'
 import Particles from '@/components/particles'
-
+import RichText from '@/components/rich-text'
 import Illustration from '@/public/images/page-illustration.svg'
-import CustomerBadge from '@/public/images/customer-badge.svg'
 import RelatedPosts from './related-posts'
+import { contentfulClient } from '@/lib/contentful'
 
-export default function CustomerSingle() {
+export const dynamic = 'force-dynamic'
+
+type ContentfulAsset = {
+  fields?: {
+    title?: string
+    file?: {
+      url?: string
+      details?: {
+        image?: {
+          width?: number
+          height?: number
+        }
+      }
+    }
+  }
+}
+
+type CustomerFields = {
+  name: string
+  logo?: ContentfulAsset
+}
+
+type CustomerPostFields = {
+  title: string
+  slug: string
+  body: Document
+  customer?: {
+    fields?: CustomerFields
+  }
+}
+
+function getAssetUrl(url?: string) {
+  if (!url) return null
+  return url.startsWith('//') ? `https:${url}` : url
+}
+
+async function getPost(slug: string): Promise<CustomerPostFields | null> {
+  try {
+    const response = await contentfulClient.getEntries({
+      content_type: 'customerPost',
+      'fields.slug': slug,
+      include: 2,
+      limit: 1,
+    })
+
+    return (response.items[0]?.fields as CustomerPostFields) ?? null
+  } catch (error) {
+    console.error('Error fetching customer post from Contentful:', error)
+    return null
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPost(slug)
+
+  return {
+    title: post ? `${post.title} - Stellar` : 'Customer Post - Stellar',
+    description: post?.title ?? 'Page description',
+  }
+}
+
+// slug: how-canon-leverages-stellar-x-to-onboard-new-hosts
+export default async function CustomerPost({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const post = await getPost(slug)
+
+  if (!post) notFound()
+
+  const customer = post.customer?.fields
+  const logoUrl = getAssetUrl(customer?.logo?.fields?.file?.url)
+  const logoWidth = customer?.logo?.fields?.file?.details?.image?.width ?? 64
+  const logoHeight = customer?.logo?.fields?.file?.details?.image?.height ?? 64
+
   return (
     <section className="relative">
 
@@ -45,62 +124,14 @@ export default function CustomerSingle() {
                   </div>
 
                   <header>
-                    <h1 className="inline-flex bg-clip-text bg-gradient-to-r from-slate-200/60 via-slate-200 to-slate-200/60 pb-4 text-transparent h2">How Airbnb leverages Stellar X to onboard new hosts</h1>
-                    <div className="flex items-center space-x-4 mb-8 text-sm">
-                      <img className="rounded-full" src="../images/customer-avatar-03.jpg" width="32" height="32" alt="Customer Avatar 03" />
-                      <div>
-                        <div className="font-medium text-slate-300">Becky Taylor</div>
-                        <div className="text-slate-500">Product Marketing Manager</div>
-                      </div>
-                    </div>
+                    <h1 className="inline-flex bg-clip-text bg-gradient-to-r from-slate-200/60 via-slate-200 to-slate-200/60 pb-4 text-transparent h2">
+                      {post.title}
+                    </h1>
                   </header>
 
                   {/* Post content */}
-                  <div className="prose-h2:mt-8 prose-h2:mb-4 prose-blockquote:xl:-ml-5 prose-blockquote:pl-5 prose-blockquote:border-purple-500 prose-blockquote:border-l-2 max-w-none prose-blockquote:font-medium prose-strong:font-medium text-slate-400 prose-a:text-purple-500 prose-blockquote:text-slate-300 prose-headings:text-slate-50 prose-strong:text-slate-50 prose-h2:text-xl hover:prose-a:underline prose-a:no-underline prose-blockquote:italic prose-p:leading-relaxed prose">
-                    <p>
-                      <a href="#0">Airbnb</a> is an American San Francisco-based company operating an online marketplace for short- and long-term homestays and experiences. The company acts as a broker and charges a commission from each booking. The company was founded in 2008 by Brian Chesky, Nathan Blecharczyk, and Joe Gebbia. Airbnb is a shortened version of its original name, AirBedandBreakfast.com. Airbnb is the most well-known company for short-term housing rentals.
-                    </p>
-                    <p>
-                      Regulation of <strong>short-term rentals can include requirements for hosts to have business licenses</strong>, payment of hotel taxes and compliance with building, city and zoning standards. The hotel industry has lobbied for stricter regulations on short-term home rental and in addition to government-imposed restrictions, many homeowner associations also limit short term rentals.
-                    </p>
-                    <h2>Why do Airbnb need web governance policies?</h2>
-                    <p>
-                      Brian Chesky, Co-Founder and CEO at Airbnb:
-                    </p>
-                    <p>
-                      Through spending twenty years working with hots, Airbnb reflected that a lack of governance policy is a systemic issue with most short rentals. Without web governance, hosts usually experience a lack of process and accountability leading to:
-                    </p>
-                    <ul>
-                      <li>
-                        An organic sprawl of content, creating bloated websites
-                      </li>
-                      <li>
-                        Inconsistent, poorer quality content
-                      </li>
-                      <li>
-                        Weak user experience impacting the ability to support digital goals
-                      </li>
-                    </ul>
-                    <p>
-                      When these problems become acute enough, large website redesign projects begin. But <strong>without governance being put in place at the same time, the same problem will only happen again</strong>. Airbnb mitigate this risk by baking web governance into their working process with clients from strategy through to site launch and beyond.
-                    </p>
-                    <h2>Good governance leads to stronger results</h2>
-                    <p>
-                      With a strong process for content governance, the benefits are clear for both Airbnb as a company and their clients. Since its founding in 2008, Airbnb has become one of the most successful and valuable start-ups in the world, and has had a significant impact on the industry of renting homes and the hospitality industry more generally.
-                    </p>
-                    <blockquote>
-                      <p>
-                        “With a strong process for content governance, the benefits are clear for both Airbnb as a company and their clients. Since its founding in 2008, Airbnb has become one of the most successful and valuable start-ups in the world, and has had a significant impact on the industry of renting homes and the hospitality industry more generally.”
-                      </p>
-                    </blockquote>
-                    <p>
-                      Airbnb has also had a significant impact on the hospitality industry, particularly in the area of hotels and other traditional accommodation providers, which are often referred to as the HORECA industry. Some industry experts believe that Airbnb's rapid growth has disrupted the traditional HORECA model, and has led to a decline in revenue and occupancy rates for traditional hotels in certain markets.
-                    </p>
-                    <h2>How do you get organisation wide buy-in?</h2>
-                    <p>
-                      Mike reflected that the optimum time to introduce a web governance policy is during a website relaunch project because of the collective energy focused on creating a better user experience.
-                      Voltaire recommends starting governance policy in line with strategy kick-off.
-                    </p>
+                  <div className="prose-h2:mt-8 prose-h2:mb-4 prose-blockquote:xl:-ml-5 prose-blockquote:pl-5 prose-blockquote:border-purple-500 prose-blockquote:border-l-2 max-w-none prose-blockquote:font-medium text-slate-400 prose-a:text-purple-500 prose-blockquote:text-slate-300 prose-headings:text-slate-50 prose-strong:text-slate-50 prose-h2:text-xl hover:prose-a:underline prose-a:no-underline prose-blockquote:italic prose-p:leading-relaxed prose">
+                    <RichText document={post.body} />
                   </div>
                 </article>
 
@@ -110,55 +141,33 @@ export default function CustomerSingle() {
             </div>
 
             {/* Sidebar */}
-            <aside className="md:pt-[3.75rem] lg:pt-0 pb-12 md:pb-20 md:w-64 lg:w-80 md:shrink-0">
-              <div className="top-6 sticky md:pl-6 lg:pl-10">
+            {customer && (
+              <aside className="md:pt-[3.75rem] lg:pt-0 pb-12 md:pb-20 md:w-64 lg:w-80 md:shrink-0">
+                <div className="top-6 sticky md:pl-6 lg:pl-10">
 
-                {/* Sidebar content */}
-                <div className="space-y-6">
-
-                  {/* Widget */}
-                  <div className="bg-gradient-to-tr from-slate-800 to-slate-800/25 border border-slate-800 rounded-3xl">
-                    <div className="px-5 py-6">
-                      <div className="mb-5">
-                        <div className="flex items-center space-x-4">
-                          <Image src={CustomerBadge} width={64} height={64} alt="Customer badge" />
-                          <div className="font-semibold text-slate-100 text-lg">Airbnb Inc.</div>
+                  <div className="space-y-6">
+                    <div className="bg-gradient-to-tr from-slate-800 to-slate-800/25 border border-slate-800 rounded-3xl">
+                      <div className="px-5 py-6">
+                        <div className="mb-5">
+                          <div className="flex items-center space-x-4">
+                            {logoUrl && (
+                              <Image
+                                src={logoUrl}
+                                width={logoWidth}
+                                height={logoHeight}
+                                alt={`${customer.name} logo`}
+                              />
+                            )}
+                            <div className="font-semibold text-slate-100 text-lg">{customer.name}</div>
+                          </div>
                         </div>
                       </div>
-                      <ul className="text-sm">
-                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-                          <span className="text-slate-400">Location</span>
-                          <span className="font-medium text-slate-300">San Francisco</span>
-                        </li>
-                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-                          <span className="text-slate-400">Website</span>
-                          <a className="flex items-center space-x-1 font-medium text-purple-500" href="#0">
-                            <span>airbnb.com</span>
-                            <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="9" height="9">
-                              <path d="m1.285 8.514-.909-.915 5.513-5.523H1.663l.01-1.258h6.389v6.394H6.794l.01-4.226z" />
-                            </svg>
-                          </a>
-                        </li>
-                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-                          <span className="text-slate-400">Industry</span>
-                          <span className="font-medium text-slate-300">Hospitality</span>
-                        </li>
-                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-                          <span className="text-slate-400">Product</span>
-                          <span className="font-medium text-slate-300">Stellar X</span>
-                        </li>
-                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-                          <span className="text-slate-400">Impact</span>
-                          <span className="font-medium text-slate-300">+7% new hosts</span>
-                        </li>
-                      </ul>
                     </div>
                   </div>
 
                 </div>
-
-              </div>
-            </aside>
+              </aside>
+            )}
 
           </div>
 

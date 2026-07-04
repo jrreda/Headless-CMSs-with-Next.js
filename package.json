@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@contentful/rich-text-react-renderer": "^16.2.1",
     "@headlessui/react": "^2.2.10",
     "aos": "^2.3.4",
     "contentful": "^11.12.6",
