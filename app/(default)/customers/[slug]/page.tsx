@@ -6,13 +6,13 @@ import type { Document } from '@contentful/rich-text-types'
 import Particles from '@/components/particles'
 import RichText from '@/components/rich-text'
 import Illustration from '@/public/images/page-illustration.svg'
+import CustomerBadge from '@/public/images/customer-badge.svg'
 import RelatedPosts from './related-posts'
 import { contentfulClient } from '@/lib/contentful'
 
 async function getAllSlugs() {
   const response = await contentfulClient.getEntries({
     content_type: 'customerPost',
-    select: 'fields.slug',
   })
   return response.items
     .map((item) => item.fields?.slug)
@@ -21,7 +21,7 @@ async function getAllSlugs() {
 
 export async function generateStaticParams() {
   const slugs = await getAllSlugs()
-  return slugs.map(slug => ({ slug }))
+  return slugs.map((slug) => ({ slug }))
 }
 
 type ContentfulAsset = {
@@ -140,6 +140,13 @@ export default async function CustomerPost({
                     <h1 className="inline-flex bg-clip-text bg-gradient-to-r from-slate-200/60 via-slate-200 to-slate-200/60 pb-4 text-transparent h2">
                       {post.title}
                     </h1>
+                    <div className="flex items-center space-x-4 mb-8 text-sm">
+                      <img className="rounded-full" src="../images/customer-avatar-03.jpg" width="32" height="32" alt="Customer Avatar 03" />
+                      <div>
+                        <div className="font-medium text-slate-300">Becky Taylor</div>
+                        <div className="text-slate-500">Product Marketing Manager</div>
+                      </div>
+                    </div>
                   </header>
 
                   {/* Post content */}
@@ -154,33 +161,64 @@ export default async function CustomerPost({
             </div>
 
             {/* Sidebar */}
-            {customer && (
-              <aside className="md:pt-[3.75rem] lg:pt-0 pb-12 md:pb-20 md:w-64 lg:w-80 md:shrink-0">
-                <div className="top-6 sticky md:pl-6 lg:pl-10">
+            <aside className="md:pt-[3.75rem] lg:pt-0 pb-12 md:pb-20 md:w-64 lg:w-80 md:shrink-0">
+              <div className="top-6 sticky md:pl-6 lg:pl-10">
 
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-tr from-slate-800 to-slate-800/25 border border-slate-800 rounded-3xl">
-                      <div className="px-5 py-6">
-                        <div className="mb-5">
-                          <div className="flex items-center space-x-4">
-                            {logoUrl && (
-                              <Image
-                                src={logoUrl}
-                                width={logoWidth}
-                                height={logoHeight}
-                                alt={`${customer.name} logo`}
-                              />
-                            )}
-                            <div className="font-semibold text-slate-100 text-lg">{customer.name}</div>
-                          </div>
+                {/* Sidebar content */}
+                <div className="space-y-6">
+
+                  {/* Widget */}
+                  <div className="bg-gradient-to-tr from-slate-800 to-slate-800/25 border border-slate-800 rounded-3xl">
+                    <div className="px-5 py-6">
+                      <div className="mb-5">
+                        <div className="flex items-center space-x-4">
+                          {logoUrl ? (
+                            <Image
+                              src={logoUrl}
+                              width={logoWidth}
+                              height={logoHeight}
+                              alt={`${customer?.name} logo`}
+                            />
+                          ) : (
+                            <Image src={CustomerBadge} width={64} height={64} alt="Customer badge" />
+                          )}
+                          <div className="font-semibold text-slate-100 text-lg">{customer?.name}</div>
                         </div>
                       </div>
+                      <ul className="text-sm">
+                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
+                          <span className="text-slate-400">Location</span>
+                          <span className="font-medium text-slate-300">San Francisco</span>
+                        </li>
+                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
+                          <span className="text-slate-400">Website</span>
+                          <a className="flex items-center space-x-1 font-medium text-purple-500" href="#0">
+                            <span>airbnb.com</span>
+                            <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="9" height="9">
+                              <path d="m1.285 8.514-.909-.915 5.513-5.523H1.663l.01-1.258h6.389v6.394H6.794l.01-4.226z" />
+                            </svg>
+                          </a>
+                        </li>
+                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
+                          <span className="text-slate-400">Industry</span>
+                          <span className="font-medium text-slate-300">Hospitality</span>
+                        </li>
+                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
+                          <span className="text-slate-400">Product</span>
+                          <span className="font-medium text-slate-300">Stellar X</span>
+                        </li>
+                        <li className="flex justify-between items-center space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
+                          <span className="text-slate-400">Impact</span>
+                          <span className="font-medium text-slate-300">+7% new hosts</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
 
                 </div>
-              </aside>
-            )}
+
+              </div>
+            </aside>
 
           </div>
 
